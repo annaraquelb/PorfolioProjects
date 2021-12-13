@@ -1,0 +1,142 @@
+## MINIMUN COST FLOW PROBLEM 
+
+from pulp import *  # Import pulp libray
+
+# Calculate transportation costs for each route
+
+transportation_unitary_cost = (1.3 * 0.5)  # cost per km
+fixed_transportation_cost = 0  # does not apply for this problem
+
+# Define classes for the sinks and sources
+
+# For each sink added in the model, choose amount of required and present cars to calculate demand, the x coordinate, and y coordinate
+class Sink:
+    def __init__(self, required_cars, cars_present, sink_x, sink_y):
+        self.required_cars = required_cars
+        self.cars_present = cars_present
+        self.sink_x = sink_x
+        self.sink_y = sink_y
+        self.demand = required_cars - cars_present
+
+# For each source added in the model, choose amount of required and present cars to calculate excess, the x coordinate, and y coordinate
+class Source:
+    def __init__(self, required_cars, cars_present, supply_x, supply_y):
+        self.required_cars = required_cars
+        self.cars_present = cars_present
+        self.supply_x = supply_x
+        self.supply_y = supply_y
+        self.excess = cars_present - required_cars
+
+# Choose the sinks' attributes
+sink1 = Sink(10, 8, 0, 0)
+sink3 = Sink(8, 4, 18, 10)
+sink4 = Sink(11,8, 30, 12)
+sink6 = Sink(7, 2, 33, 25)
+sink7 = Sink(15, 14, 5, 27)
+sink10 = Sink(12, 7, 2, 15)
+
+# Choose the sources' attributes
+source2 = Source(6, 13, 20, 20)
+source5 = Source(9, 12, 35, 0)
+source8 = Source(7, 11, 5, 10)
+source9 = Source(9, 15, 11, 0)
+
+# Define Function to calculate distances between sources and sinks
+def dist(supply_x, supply_y, sink_x, sink_y):
+    distance = ((supply_x - sink_x)**2 + ((supply_y - sink_y)**2))**0.5
+    return distance
+
+
+# Define the generic expression that calculates cost prices from each supplier to each sink
+two_one = ((dist(source2.supply_x, source2.supply_y, sink1.sink_x, sink1.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+two_three = ((dist(source2.supply_x, source2.supply_y, sink3.sink_x, sink3.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+two_four = ((dist(source2.supply_x, source2.supply_y, sink4.sink_x, sink4.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+two_six = ((dist(source2.supply_x, source2.supply_y, sink6.sink_x, sink6.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+two_seven = ((dist(source2.supply_x, source2.supply_y, sink7.sink_x, sink7.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+two_ten = ((dist(source2.supply_x, source2.supply_y, sink10.sink_x, sink10.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+
+five_one = ((dist(source5.supply_x, source5.supply_y, sink1.sink_x, sink1.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+five_three = ((dist(source5.supply_x, source5.supply_y, sink3.sink_x, sink3.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+five_four = ((dist(source5.supply_x, source5.supply_y, sink4.sink_x, sink4.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+five_six = ((dist(source5.supply_x, source5.supply_y, sink6.sink_x, sink6.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+five_seven = ((dist(source5.supply_x, source5.supply_y, sink7.sink_x, sink7.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+five_ten = ((dist(source5.supply_x, source5.supply_y, sink10.sink_x, sink10.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+
+eight_one = ((dist(source8.supply_x, source8.supply_y, sink1.sink_x, sink1.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+eight_three = ((dist(source8.supply_x, source8.supply_y, sink3.sink_x, sink3.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+eight_four = ((dist(source8.supply_x, source8.supply_y, sink4.sink_x, sink4.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+eight_six = ((dist(source8.supply_x, source8.supply_y, sink6.sink_x, sink6.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+eight_seven = ((dist(source8.supply_x, source8.supply_y, sink7.sink_x, sink7.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+eight_ten = ((dist(source8.supply_x, source8.supply_y,sink10.sink_x, sink10.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+
+nine_one = ((dist(source9.supply_x, source9.supply_y, sink1.sink_x, sink1.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+nine_three = ((dist(source9.supply_x, source9.supply_y, sink3.sink_x, sink3.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+nine_four = ((dist(source9.supply_x, source9.supply_y, sink4.sink_x, sink4.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+nine_six = ((dist(source9.supply_x, source9.supply_y, sink6.sink_x, sink6.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+nine_seven = ((dist(source9.supply_x, source9.supply_y, sink7.sink_x, sink7.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+nine_ten = ((dist(source9.supply_x, source9.supply_y, sink10.sink_x, sink10.sink_y)) * transportation_unitary_cost) + fixed_transportation_cost
+
+
+# Add the variables for the model - aij is the arc the connects the supplier i to the sink j
+prob = LpProblem("Min", LpMinimize)
+x21 = LpVariable("a21", 0, cat='Integer')
+x23 = LpVariable("a23", 0, cat='Integer')
+x24 = LpVariable("a24", 0, cat='Integer')
+x26 = LpVariable("a26", 0, cat='Integer')
+x27 = LpVariable("a27", 0, cat='Integer')
+x210 = LpVariable("a210", 0, cat='Integer')
+
+x51 = LpVariable("a51", 0, cat='Integer')
+x53 = LpVariable("a53", 0, cat='Integer')
+x54 = LpVariable("a54", 0, cat='Integer')
+x56 = LpVariable("a56", 0, cat='Integer')
+x57 = LpVariable("a57", 0, cat='Integer')
+x510 = LpVariable("a510", 0, cat='Integer')
+
+x81 = LpVariable("a81", 0, cat='Integer')
+x83 = LpVariable("a83", 0, cat='Integer')
+x84 = LpVariable("a84", 0, cat='Integer')
+x86 = LpVariable("a86", 0, cat='Integer')
+x87 = LpVariable("a87", 0, cat='Integer')
+x810 = LpVariable("a810", 0, cat='Integer')
+
+x91 = LpVariable("a91", 0, cat='Integer')
+x93 = LpVariable("a93", 0, cat='Integer')
+x94 = LpVariable("a94", 0, cat='Integer')
+x96 = LpVariable("a96", 0, cat='Integer')
+x97 = LpVariable("a97", 0, cat='Integer')
+x910 = LpVariable("a910", 0, cat='Integer')
+
+# Add the objective function to the problem
+
+prob += two_one*x21 + two_three*x23 + two_four*x24 + two_six*x26 + two_seven*x27 + two_ten*x210 + \
+ five_one*x51 + five_three*x53 + five_four*x54 + five_six*x56 + five_seven*x57 + five_ten*x510 + \
+ eight_one*x81 + eight_three*x83 + eight_four*x84 + eight_six*x86 + eight_seven*x87 + eight_ten*x810 + \
+ nine_one*x91 + nine_three*x93 + nine_four*x94 + nine_six*x96 + nine_seven*x97 + nine_ten*x910, " objective function"
+
+#  Add constraints to the problem : the total number of cars supplied from the provider to each demanding agency (xij) must be equal to the sourcer's capacity to supply (ci)
+
+prob += x21 + x23 + x24 + x26 + x27 + x210 == source2.excess, "c2"
+prob += x51 + x53 + x54 + x56 + x57 + x510 == source5.excess, "c5"
+prob += x81 + x83 + x84 + x86 + x87 + x810 == source8.excess, 'c8'
+prob += x91 + x93 + x94 + x96 + x97 + x910 == source9.excess, "c9"
+
+# Add constraints to the problem: the total number of cars supplied from the provider to each demanding agency (xij) must be equal to the sink's necessity (cj)
+
+prob += x21 + x51 + x81 + x91 == sink1.demand, "c1"
+prob += x23 + x53 + x83 + x93 == sink3.demand, "c3"
+prob += x24 + x54 + x84 + x94 == sink4.demand, "c4"
+prob += x26 + x56 + x86 + x96 == sink6.demand, "c6"
+prob += x27 + x57 + x87 + x97 == sink7.demand, "c7"
+prob += x210 + x510 + x810 + x910 == sink10.demand, "c10"
+
+# Solution
+prob.solve()
+
+print("Status:", LpStatus[prob.status])  # solution status
+
+for v in prob.variables():
+    print(v.name, "=", v.varValue)
+
+obj = value(prob.objective)
+print("The total cost of transportation is: ${}".format(round(obj, 2)))
